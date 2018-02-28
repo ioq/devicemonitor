@@ -1,4 +1,4 @@
-from deviceinfo import Meminfo
+from deviceinfo import MemInfo
 import sys
 import signal
 
@@ -11,7 +11,7 @@ def signal_handler(signal, frame):
 
 signal.signal(signal.SIGINT, signal_handler)
 
-meminfo = Meminfo()
+meminfo = MemInfo()
 meminfo.start()
 meminfo.join()
 print(":)")

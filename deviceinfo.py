@@ -16,7 +16,7 @@ class DeviceInfo(ABC, threading.Thread):
         threading.Thread.__init__(self)
         self._name = name
         self._data = None
-        self._now = str(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
+        self._now = str(datetime.datetime.now().strftime('%Y%m%d%H%M%S'))
 
     @abstractmethod
     def _get_device_info(self):
@@ -39,7 +39,7 @@ class DeviceInfo(ABC, threading.Thread):
         name = self._now + "_" + self._name + ".csv"
         self._data.to_csv(name)
 
-class Meminfo(DeviceInfo):
+class MemInfo(DeviceInfo):
     def __init__(self):
         DeviceInfo.__init__(self, "meminfo")
         self.__stop = False
@@ -118,6 +118,9 @@ class Meminfo(DeviceInfo):
         print(self._data.tail(n=32))        
 
     def to_plotly(self):
+        if self._data is None:
+            return
+
         data = []
         for i in self._data.columns:
             trace = go.Scatter(
@@ -145,6 +148,9 @@ class VmStat(DeviceInfo):
         DeviceInfo.__init__(self, "vmstat")
 
     def to_plotly(self):
+        if self._data is None:
+            return
+
         data_cpu = []
         name = ["us", "sy", "wa", "cpu_u"]
         for i in name:
@@ -189,7 +195,7 @@ class VmStat(DeviceInfo):
             )
         fig['layout']['yaxis1'].update(title='Usage(%)')
         fig['layout']['yaxis2'].update(title='Memory Usage(MB)')
-        fig['layout']['yaxis3'].update(title='IO Through(KB)')
+        fig['layout']['yaxis3'].update(title='IO Through(MB)')
 
         for i in data_cpu:
             fig.append_trace(i, 1,1)
@@ -249,10 +255,10 @@ class VmStat(DeviceInfo):
                     "free":round(int(source[3])/1024,2),
                     "buffer":round(int(source[4])/1024,2),
                     "cache":round(int(source[5])/1024,2),
-                    "si":source[6],
-                    "so":source[7],
-                    "bi":source[8],
-                    "bo":source[9],
+                    "si":round(int(source[6])/1024,2),
+                    "so":round(int(source[7])/1024,2),
+                    "bi":round(int(source[8])/1024,2),
+                    "bo":round(int(source[9])/1024,2),
                     "in":source[10],
                     "cs":source[11],
                     "us":int(source[12]),
